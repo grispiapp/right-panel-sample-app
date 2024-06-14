@@ -10,15 +10,15 @@ grispiClient.init().then(bundle => {
   const context = bundle.context;
   const pluginSettings = bundle.settings;
 
-  // If the app is loaded on a "New Ticket" tab then the ticket object in the context object (context.ticket) is null
-  const ticket = context.ticket;
-  isNewTicket = ticket == null;
+  // If the app is loaded on a "New Ticket" tab then the ticketKey in the context object (context.ticketKey) is null
+  const ticketKey = context.ticketKey;
+  isNewTicket = ticketKey == null;
 
   updateUiWithContext(context);
   updateUiWithPluginSettings(pluginSettings);
 
   if (!isNewTicket) {
-    const upToDateTicketFromServer = getTicket(ticket.key, context.token, context.tenantId);
+    const ticket = getTicket(ticketKey, context.token, context.tenantId);
 
     // TODO UI initialization with ticket and requester info
   }
@@ -66,5 +66,5 @@ async function getTicket(ticketKey, token, tenantId) {
   // TODO error handling
   const ticketJson = response.json();
   console.log(LABEL, 'ticket', ticketJson);
-  return response.json();
+  return ticketJson;
 }
