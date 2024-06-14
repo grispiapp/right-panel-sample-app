@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Grispi Plugin Showcase</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<link rel="stylesheet" href="index.css?1" />
+
+<!-- Ensure that grispi-plugin.js is loaded before your own scripts -->
+<script type="text/javascript" src="https://grispi.app/grispi-plugin-sdk/grispi-plugin.js"></script>
+
+</head>
+<body>
+	<main>
+		<h1>Plugin Showcase</h1>
+		<fieldset>
+			<label>Current Agent</label>
+			<div>
+				<label>User ID</label>
+				<input readonly name="user-id">
+			</div>
+			<div>
+				<label >Name</label>
+				<input readonly name="user-full-name">
+			</div>
+			<div>
+				<label>Email</label>
+				<input readonly name="user-email">
+			</div>
+			<div>
+				<label>Phone</label>
+				<input readonly name="user-phone">
+			</div>
+		</fieldset>
+		<br>
+		<fieldset>
+			<label>Ticket's Requester</label>
+			<div>
+				<label>User ID</label>
+				<input readonly name="requester-id">
+			</div>
+			<div>
+				<label >Name</label>
+				<input readonly name="requester-full-name">
+			</div>
+			<div>
+				<label>Email</label>
+				<input readonly name="requester-email">
+			</div>
+			<div>
+				<label>Phone</label>
+				<input readonly name="requester-phone">
+			</div>
+		</fieldset>
+		<br>
+		<fieldset>
+			<label>Current Ticket</label>
+			<div>
+				<label>Current Ticket Key</label>
+				<input readonly name="ticket-key">
+			</div>
+			<div>
+				<label>Fields</label><br>
+				<textarea readonly name="ticket-fields" rows="20"></textarea>
+			</div>
+		</fieldset>
+		<br>
+		<fieldset>
+			<label>Update Ticket</label>
+			<div>
+				<label>Set Field Value</label>
+				<select>
+					<optgroup label="System Fields">
+						<option>Subject</option>
+						<option>Comment</option>
+						<option>Requester</option>
+					</optgroup>
+					<optgroup label="Custom Fields">
+						<option>Location [tu.field1]</option>
+						<option>VIP user priority [tu.field2]</option>
+						<option>City [tu.field3]</option>
+					</optgroup>
+				</select>
+				<input name="ticket-field-value">
+			</div>
+			<button>Update</button>
+		</fieldset>
+		<section>
+			<h3>Console</h3>
+			<div id="log"></div>
+		</section>
+	</main>
+	<footer>Rendered at <span id="renderedAt"></span></footer>
+	<script>
+		document.getElementById('renderedAt').innerText = new Date().toLocaleTimeString();
+	</script>
+
+	<!-- Ensure your script is loaded after grispi-plugin.js -->
+	<script type="text/javascript" src="plugin-implementation.js"></script>
+</body>
+</html>
