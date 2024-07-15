@@ -1,9 +1,11 @@
 const LABEL = 'Grispi Plugin Showcase';
 const GRISPI_API_URL = 'https://localhost:8443';
-const grispiClient = GrispiClient.instance();
+const grispi = Grispi.instance();
 let isNewTicket = false;
+let tenantId;
+let lang;
 
-grispiClient.init().then(bundle => {
+grispi.init().then(bundle => {
   log('Plugin initialized.');
   console.log(LABEL, bundle);
 
@@ -13,24 +15,27 @@ grispiClient.init().then(bundle => {
   // If the app is loaded on a "New Ticket" tab then the ticketKey in the context object (context.ticketKey) is null
   const ticketKey = context.ticketKey;
   isNewTicket = ticketKey == null;
+  tenantId = context.tenantId;
+  lang = context.lang;
 
   updateUiWithContext(context);
   updateUiWithPluginSettings(pluginSettings);
 
   if (!isNewTicket) {
-    const ticket = getTicket(ticketKey, context.token, context.tenantId);
+    const ticket = getTicket(ticketKey);
 
     // TODO UI initialization with ticket and requester info
   }
 });
 
-grispiClient.activeTicketChanged = function(ticketKey) {
+grispi.activeTicketChanged = function(ticketKey) {
   // Intentionally left blank
+  // This should be an empty (no-op) function for right panel apps
 }
 
-grispiClient.currentTicketUpdated = function(ticketKey) {
-  const ticket = getTicket('TICKET-1', context.token, context.tenantId);
-
+grispi.currentTicketUpdated = function(ticketKey) {
+  const ticket = getTicket(ticketKey);
+  console.log(LABEL, 'ticket', ticket);
   // TODO UI update with updated ticket info
 }
 
@@ -38,7 +43,6 @@ function updateUiWithContext(context) {
   if (isNewTicket) return;
 
   document.querySelector('input[name=ticket-key]').value = context.ticketKey;
-  document.querySelector('textarea[name=ticket-fields]').value = JSON.stringify(context.ticket.fieldMap, null, 2);
   // TODO further UI updates...
 }
 
@@ -51,7 +55,7 @@ function log(message) {
   document.getElementById('log').innerText += `\n${new Date().toLocaleTimeString()} ${message}`;
 }
 
-async function getTicket(ticketKey, token, tenantId) {
+async function getTicket(ticketKey) {
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#supplying_your_own_request_object
   const response = await fetch(`${GRISPI_API_URL}/public/v1/tickets/${ticketKey}`, {
@@ -59,12 +63,10 @@ async function getTicket(ticketKey, token, tenantId) {
     cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      "Authorization": `Bearer ${grispi.apiToken()}`,
       "tenantId": tenantId
     }
   });
   // TODO error handling
-  const ticketJson = response.json();
-  console.log(LABEL, 'ticket', ticketJson);
-  return ticketJson;
+  return response.json();
 }
