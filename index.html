@@ -85,14 +85,14 @@
 			</div>
 			<button>Update</button>
 		</fieldset>
-		<section>
+        <br>
+		<fieldset>
 			<h3>Console</h3>
 			<div id="log"></div>
-		</section>
+		</fieldset>
 	</main>
-	<footer>Rendered at <span id="renderedAt"></span></footer>
 	<script>
-		document.getElementById('renderedAt').innerText = new Date().toLocaleTimeString();
+		document.getElementById('log').innerText += `${new Date().toLocaleTimeString()} Rendered.`
 	</script>
 
 	<!-- Ensure your script is loaded after grispi-plugin.js -->

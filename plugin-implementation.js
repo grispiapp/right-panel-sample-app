@@ -22,9 +22,11 @@ grispi.init().then(bundle => {
   updateUiWithPluginSettings(pluginSettings);
 
   if (!isNewTicket) {
-    const ticket = getTicket(ticketKey);
-
-    // TODO UI initialization with ticket and requester info
+    getTicket(ticketKey).then(ticket => {
+        updateUiFields(ticket);
+    }).catch(error => {
+        log(`Failed to get ticket while initializing plugin: ${error}`)
+    });
   }
 });
 
@@ -34,15 +36,40 @@ grispi.activeTicketChanged = function(ticketKey) {
 }
 
 grispi.currentTicketUpdated = function(ticketKey) {
-  const ticket = getTicket(ticketKey);
-  console.log(LABEL, 'ticket', ticket);
-  // TODO UI update with updated ticket info
+  log('Ticket updated.');
+  getTicket(ticketKey).then(ticket => {
+      updateUiFields(ticket);
+  }).catch(error => {
+      log(`Failed to get ticket while initializing plugin: ${error}`);
+  });
+}
+
+function updateUiFields(ticket) {
+    const fields = Object.entries(ticket.fieldMap)
+        .map(([_, { key, value }]) => key === 'ts.description' ? `${key}: <redacted>` : `${key}: ${value}`)
+        .join('\n');
+    document.querySelector('textarea[name=ticket-fields]').value = fields;
 }
 
 function updateUiWithContext(context) {
   if (isNewTicket) return;
 
   document.querySelector('input[name=ticket-key]').value = context.ticketKey;
+
+  if (context.agent) {
+      document.querySelector('input[name=user-id]').value = context.agent.id;
+      document.querySelector('input[name=user-full-name]').value = context.agent.fullName;
+      document.querySelector('input[name=user-email]').value = context.agent.email;
+      document.querySelector('input[name=user-phone]').value = context.agent.phone;
+  }
+
+  if (context.requester) {
+      document.querySelector('input[name=requester-id]').value = context.requester.id;
+      document.querySelector('input[name=requester-full-name]').value = context.requester.fullName;
+      document.querySelector('input[name=requester-email]').value = context.requester.email;
+      document.querySelector('input[name=requester-phone]').value = context.requester.phone;
+  }
+
   // TODO further UI updates...
 }
 
@@ -67,6 +94,5 @@ async function getTicket(ticketKey) {
       "tenantId": tenantId
     }
   });
-  // TODO error handling
   return response.json();
 }
