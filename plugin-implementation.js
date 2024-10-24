@@ -39,6 +39,14 @@ grispi.currentTicketUpdated = function(ticketKey) {
   log('Ticket updated.');
   getTicket(ticketKey).then(ticket => {
       updateUiFields(ticket);
+      const requesterId = +ticket.fieldMap['ts.requester'].value;
+      getUser(requesterId).then((user) => {
+          const requesterFullName = (user.firstName ?? '') + ' ' + (user.lastName ?? '');
+          setRequester(user.id, requesterFullName, user.primaryEmail, user.primaryPhone);
+      }).catch(error => {
+          log(`Failed to update requester fields: ${error}`)
+          setRequester('', '', '', '');
+      });
   }).catch(error => {
       log(`Failed to get ticket while initializing plugin: ${error}`);
   });
@@ -64,10 +72,7 @@ function updateUiWithContext(context) {
   }
 
   if (context.requester) {
-      document.querySelector('input[name=requester-id]').value = context.requester.id;
-      document.querySelector('input[name=requester-full-name]').value = context.requester.fullName;
-      document.querySelector('input[name=requester-email]').value = context.requester.email;
-      document.querySelector('input[name=requester-phone]').value = context.requester.phone;
+      setRequester(context.requester.id, context.requester.fullName, context.requester.email, context.requester.phone);
   }
 
   // TODO further UI updates...
@@ -80,6 +85,13 @@ function updateUiWithPluginSettings(pluginSettings) {
 
 function log(message) {
   document.getElementById('log').innerText += `\n${new Date().toLocaleTimeString()} ${message}`;
+}
+
+function setRequester(id, name, email, phone) {
+    document.querySelector('input[name=requester-id]').value = id;
+    document.querySelector('input[name=requester-full-name]').value = name;
+    document.querySelector('input[name=requester-email]').value = email;
+    document.querySelector('input[name=requester-phone]').value = phone;
 }
 
 async function getTicket(ticketKey) {
@@ -95,4 +107,17 @@ async function getTicket(ticketKey) {
     }
   });
   return response.json();
+}
+
+async function getUser(id) {
+    const response = await fetch(`${GRISPI_API_URL}/public/v1/users/${id}`, {
+        method: "GET",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${grispi.apiToken()}`,
+            "tenantId": tenantId
+        }
+    });
+    return response.json();
 }
